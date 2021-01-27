@@ -1,5 +1,5 @@
-library(tidyverse)
-library(rvest)
+# library(tidyverse)
+# library(rvest)
 
 fcf_yield<- function(stock){
       url<-paste0("https://finance.yahoo.com/quote/", stock, "/key-statistics?p=", stock)
@@ -11,7 +11,10 @@ fcf_yield<- function(stock){
             # Transpose
             t() %>%
             as_tibble()
-      lr<-nrow(dat)
+      
+      if(dat[[1,1]] != "Market Cap (intraday) 5"){
+            stop("Stock not available")
+      }
       
       to_num <- function(x){
             suf<-substr(x, nchar(x), nchar(x))
@@ -28,8 +31,13 @@ fcf_yield<- function(stock){
             c*n
       }
       
+      lr<-nrow(dat)
       mcap<-to_num(dat[[2,1]])
+      if(dat[[lr,59]]=="N/A"){
+            stop("Yahoo Free Cash Flow Statistic Not Available")
+      }
       fcf<-to_num(dat[[lr,59]])
       
       (fcf/mcap)*100
 }
+
